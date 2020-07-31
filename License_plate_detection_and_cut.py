@@ -2,7 +2,7 @@ import cv2 as cv
 import numpy as np
 import os
 
-img_path = "E:/机器学习/较复杂环境下车牌号的识别/test_picture/test6.jpg"
+img_path = "E:/机器学习/较复杂环境下车牌号的识别/test_picture/test.jpg"
 save_path = "E:/机器学习/较复杂环境下车牌号的识别/test/test_save"
 
 

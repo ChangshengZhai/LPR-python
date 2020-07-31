@@ -9,7 +9,7 @@ os.environ["TF_CPP_MIN_LOG_LEVEL"] = "2"
 tf.compat.v1.logging.set_verbosity(tf.compat.v1.logging.ERROR)
 
 path = "./test"     # 测试文件路径
-img_path = './test_picture/test7.jpg'
+img_path = './test_picture'
 checkpoint_save_path = "./checkpoint_good/LPR.ckpt"
 
 dict = {0:'0',1:'1',2:'2',3:'3',4:'4',5:'5',6:'6',7:'7',8:'8',9:'9',
@@ -58,27 +58,28 @@ def test():
     print("Accuracy:", ac_conut / sum)
 
 def predict(img_path):
-    img = detction_and_cut(img_path)
     model = load_model()
-    str=''
-    for i in range(1,8):
-        img_character = cv.cvtColor(img[i], cv.COLOR_GRAY2RGB)
-        img_character = img_character / 255.0
-        try:
-            x_predict = img_character[tf.newaxis, ...]
-            result = model.predict(x_predict)
-        except:
-            print("error!")
-            return 0
-        result = list(result[0])
-        index = result.index(max(result))
-        str += dict[index]
-    print("Result predict is : ",str)
-    print(img[0])
-    show("Image",img[0])
+    for file in os.listdir(img_path):
+        img = detction_and_cut(img_path + '/' + file)
+        str = ''
+        for i in range(1, 8):
+            img_character = cv.cvtColor(img[i], cv.COLOR_GRAY2RGB)
+            img_character = img_character / 255.0
+            try:
+                x_predict = img_character[tf.newaxis, ...]
+                result = model.predict(x_predict)
+            except:
+                print("error!")
+                return 0
+            result = list(result[0])
+            index = result.index(max(result))
+            str += dict[index]
+        print(img_path + '/' + file+" predict is : ", str)
+        show("Image", img[0])
     cv.waitKey(0)
     cv.destroyAllWindows()
     return 0
+
 
 
 
