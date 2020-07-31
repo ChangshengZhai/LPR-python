@@ -9,18 +9,13 @@ from tensorflow.keras import Model
 
 
 # datapath = "./LPR_data.npy"   该数据集泛化性不好停用
+
 train_savepath1 = './LPR_train_data.npy'
 train_savepath2 = './LPR_train_label.npy'
 test_savepath1 = './LPR_test_data.npy'
 test_savepath2 = './LPR_test_label.npy'
 
-np.set_printoptions(threshold=np.inf)
 
-# x_train,y_train,x_test,y_test = np.load(datapath)
-x_train, y_train = np.load(train_savepath1), np.load(train_savepath2)
-x_test, y_test = np.load(test_savepath1), np.load(test_savepath2)
-
-print("x_train.shape", x_train.shape)
 
 
 
@@ -92,48 +87,54 @@ class Inception10(Model):
         y = self.f1(x)
         return y
 
-model = Inception10(num_blocks=2, num_classes=65)
+def train():
+    np.set_printoptions(threshold=np.inf)
 
+    # x_train,y_train,x_test,y_test = np.load(datapath)
+    x_train, y_train = np.load(train_savepath1), np.load(train_savepath2)
+    x_test, y_test = np.load(test_savepath1), np.load(test_savepath2)
 
+    print("x_train.shape", x_train.shape)
 
+    model = Inception10(num_blocks=2, num_classes=65)
 
+    model.compile(optimizer='adam',
+                  loss=tf.keras.losses.SparseCategoricalCrossentropy(from_logits=False),
+                  metrics=['sparse_categorical_accuracy'])
 
-model.compile(optimizer='adam',
-              loss=tf.keras.losses.SparseCategoricalCrossentropy(from_logits=False),
-              metrics=['sparse_categorical_accuracy'])
+    checkpoint_save_path = "./checkpoint/LPR.ckpt"
+    if os.path.exists(checkpoint_save_path + '.index'):
+        print('-------------load the model-----------------')
+        model.load_weights(checkpoint_save_path)
 
-checkpoint_save_path = "./checkpoint/LPR.ckpt"
-if os.path.exists(checkpoint_save_path + '.index'):
-    print('-------------load the model-----------------')
-    model.load_weights(checkpoint_save_path)
+    cp_callback = tf.keras.callbacks.ModelCheckpoint(filepath=checkpoint_save_path,
+                                                     save_weights_only=True,
+                                                     save_best_only=True)
 
-cp_callback = tf.keras.callbacks.ModelCheckpoint(filepath=checkpoint_save_path,
-                                                 save_weights_only=True,
-                                                 save_best_only=True)
+    history = model.fit(x_train, y_train, batch_size=32, epochs=10, validation_data=(x_test, y_test), validation_freq=1,
+                        callbacks=[cp_callback])
+    model.summary()
 
-history = model.fit(x_train, y_train, batch_size=32, epochs=10, validation_data=(x_test, y_test), validation_freq=1,
-                    callbacks=[cp_callback])
-model.summary()
+    ###############################################    show   ###############################################
 
+    # 显示训练集和验证集的acc和loss曲线
+    acc = history.history['sparse_categorical_accuracy']
+    val_acc = history.history['val_sparse_categorical_accuracy']
+    loss = history.history['loss']
+    val_loss = history.history['val_loss']
 
+    plt.subplot(1, 2, 1)
+    plt.plot(acc, label='Training Accuracy')
+    plt.plot(val_acc, label='Validation Accuracy')
+    plt.title('Training and Validation Accuracy')
+    plt.legend()
 
-###############################################    show   ###############################################
+    plt.subplot(1, 2, 2)
+    plt.plot(loss, label='Training Loss')
+    plt.plot(val_loss, label='Validation Loss')
+    plt.title('Training and Validation Loss')
+    plt.legend()
+    plt.show()
 
-# 显示训练集和验证集的acc和loss曲线
-acc = history.history['sparse_categorical_accuracy']
-val_acc = history.history['val_sparse_categorical_accuracy']
-loss = history.history['loss']
-val_loss = history.history['val_loss']
-
-plt.subplot(1, 2, 1)
-plt.plot(acc, label='Training Accuracy')
-plt.plot(val_acc, label='Validation Accuracy')
-plt.title('Training and Validation Accuracy')
-plt.legend()
-
-plt.subplot(1, 2, 2)
-plt.plot(loss, label='Training Loss')
-plt.plot(val_loss, label='Validation Loss')
-plt.title('Training and Validation Loss')
-plt.legend()
-plt.show()
+if __name__ == '__main__':
+    train()
