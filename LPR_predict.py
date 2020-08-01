@@ -60,10 +60,15 @@ def test():
 def predict(img_path):
     model = load_model()
     for file in os.listdir(img_path):
-        img = detction_and_cut(img_path + '/' + file)
+        try:
+            image = cv.imdecode(np.fromfile(img_path + '/' + file, dtype=np.uint8), flags=cv.IMREAD_COLOR)
+        except ValueError:
+            print("图片解析失败！")
+            exit()
+        img = detction_and_cut(image)
         str = ''
         for i in range(1, 8):
-            img_character = cv.cvtColor(img[i], cv.COLOR_GRAY2RGB)
+            img_character = cv.cvtColor(img[i], cv.COLOR_GRAY2BGR)
             img_character = img_character / 255.0
             try:
                 x_predict = img_character[tf.newaxis, ...]
@@ -75,9 +80,6 @@ def predict(img_path):
             index = result.index(max(result))
             str += dict[index]
         print(img_path + '/' + file+" predict is : ", str)
-        show("Image", img[0])
-    cv.waitKey(0)
-    cv.destroyAllWindows()
     return 0
 
 
