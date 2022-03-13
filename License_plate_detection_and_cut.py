@@ -38,7 +38,7 @@ def contour(img1,img2):
     # cv.waitKey(0)
     ret, img1 = cv.threshold(img1, 127, 255, cv.THRESH_BINARY)
 
-    image, contours, hier = cv.findContours(img1, cv.RETR_LIST, cv.CHAIN_APPROX_SIMPLE)
+    contours, hier = cv.findContours(img1, cv.RETR_LIST, cv.CHAIN_APPROX_SIMPLE)
     for c in contours:  # 遍历轮廓
         rect = cv.minAreaRect(c)  # 生成最小外接矩形
         h = min([int(rect[1][0]), int(rect[1][1])])
@@ -48,7 +48,7 @@ def contour(img1,img2):
         cv.drawContours(img1, [box], 0, (255, 255, 255), 8)
 
     # 补充完矩形框后，再检测一次，寻找车牌目标矩形
-    image, contours, hier = cv.findContours(img1, cv.RETR_LIST, cv.CHAIN_APPROX_SIMPLE)
+    contours, hier = cv.findContours(img1, cv.RETR_LIST, cv.CHAIN_APPROX_SIMPLE)
     count = 0
     max_w = 0
     max_h = 0
@@ -61,7 +61,6 @@ def contour(img1,img2):
         box = cv.boxPoints(rect)  # 计算最小面积矩形的坐标
         box = np.int0(box)  # 将坐标规范化为整数
         cv.drawContours(img2, [box], 0, (0, 0, 255), 2)
-
         # 只保留需要的轮廓
         if (h > 1000 or w > 1000):
             continue

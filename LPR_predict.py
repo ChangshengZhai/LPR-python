@@ -20,6 +20,7 @@ dict = {0:'0',1:'1',2:'2',3:'3',4:'4',5:'5',6:'6',7:'7',8:'8',9:'9',
         50:'晋', 51:'浙', 52:'闽', 53:'渝', 54:'贵', 55:'陕', 56:'粤', 57:'川', 58:'鲁', 59:'琼',
         60:'青', 61:'藏', 62:'京', 63:'津', 64:'沪'}
 
+
 def load_model():
     model = Inception10(num_blocks=2, num_classes=65)
 
@@ -30,6 +31,7 @@ def load_model():
         print("No model exist!")
         exit(0)
     return model
+
 
 def test():
     model = load_model()
