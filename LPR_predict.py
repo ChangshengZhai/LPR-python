@@ -68,6 +68,8 @@ def predict(img_path):
             print("图片解析失败！")
             exit()
         img = detction_and_cut(image)
+        show("img", img[0])
+        cv.waitKey(0)
         str = ''
         for i in range(1, 8):
             img_character = cv.cvtColor(img[i], cv.COLOR_GRAY2BGR)
